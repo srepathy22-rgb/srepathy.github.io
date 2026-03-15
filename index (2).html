@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SREPATHY C — DESIGNER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Serif+Display:ital@0;1&family=Darker+Grotesque:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--r:#FF2400;--b:#000;--w:#F5F0E8;--g:#111;}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{background:var(--b);color:var(--w);font-family:'Darker Grotesque',sans-serif;cursor:none;overflow-x:hidden;}
+
+/* CURSOR */
+#cur{position:fixed;width:12px;height:12px;background:var(--r);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s;mix-blend-mode:difference;}
+#cur2{position:fixed;width:44px;height:44px;border:1px solid rgba(255,36,0,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .1s ease,top .1s ease,width .2s,height .2s;}
+
+/* NOISE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.03;pointer-events:none;z-index:9000;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;justify-content:space-between;align-items:center;padding:22px 44px;mix-blend-mode:difference;}
+.nav-mark{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.2em;color:var(--w);text-decoration:none;}
+.nav-r{display:flex;align-items:center;gap:32px;}
+.nav-r a{font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--w);text-decoration:none;transition:color .2s;}
+.nav-r a:hover{color:var(--r);}
+.nav-avail{display:flex;align-items:center;gap:7px;font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--r);}
+.dot{width:7px;height:7px;background:var(--r);border-radius:50%;animation:blink 1.4s ease infinite;}
+
+/* HERO */
+.hero{height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 44px 52px;position:relative;overflow:hidden;}
+.hero-ghost{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Bebas Neue',sans-serif;font-size:clamp(180px,26vw,380px);line-height:.85;color:transparent;-webkit-text-stroke:1px rgba(245,240,232,.05);white-space:nowrap;pointer-events:none;user-select:none;letter-spacing:-.02em;}
+.hero-idx{font-size:.67rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(245,240,232,.38);font-weight:500;margin-bottom:14px;opacity:0;animation:fadeUp .7s .1s ease forwards;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(70px,13vw,190px);line-height:.87;letter-spacing:-.01em;}
+.line{display:block;overflow:hidden;}
+.line span{display:block;transform:translateY(110%);animation:slideUp .85s cubic-bezier(.16,1,.3,1) forwards;}
+.line:nth-child(1) span{animation-delay:.15s;}
+.line:nth-child(2) span{animation-delay:.3s;}
+.hero-title em{font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);}
+.hero-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:30px;opacity:0;animation:fadeUp .7s .65s ease forwards;}
+.hero-desc{max-width:340px;font-size:1rem;line-height:1.65;color:rgba(245,240,232,.5);}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-size:.73rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--b);background:var(--w);padding:14px 28px;text-decoration:none;transition:background .2s,color .2s;}
+.hero-cta:hover{background:var(--r);color:var(--w);}
+.hero-meta{text-align:right;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,240,232,.3);line-height:2.1;}
+.hero-scroll{position:absolute;right:44px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0;animation:fadeIn 1s 1.2s ease forwards;}
+.scroll-bar{width:1px;height:72px;background:linear-gradient(to bottom,transparent,rgba(245,240,232,.25));animation:scrollAnim 2s 1.5s ease-in-out infinite;}
+.scroll-txt{font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;color:rgba(245,240,232,.25);writing-mode:vertical-rl;}
+
+/* HERO VIDEO */
+#hero-vid{
+  position:absolute;
+  inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:.18;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  z-index:0;
+}
+.hero-ghost,.hero-scroll,.hero-idx,.hero-title,.hero-foot{position:relative;z-index:1;}
+
+/* TICKER */
+.ticker{border-top:1px solid rgba(245,240,232,.07);border-bottom:1px solid rgba(245,240,232,.07);overflow:hidden;background:var(--g);}
+.ticker-inner{display:flex;white-space:nowrap;animation:ticker 20s linear infinite;}
+.ti{display:inline-flex;align-items:center;gap:20px;padding:12px 44px 12px 0;font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;color:rgba(245,240,232,.3);}
+.ti b{color:var(--r);}
+
+/* WORK */
+.work{padding:120px 44px 80px;}
+.work-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:72px;}
+.sec-ghost{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(90px,14vw,200px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(245,240,232,.08);user-select:none;}
+.work-head-r h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6.5vw,84px);line-height:.9;letter-spacing:.01em;}
+.work-head-r h2 em{font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);}
+.work-head-r p{margin-top:18px;font-size:.92rem;line-height:1.7;color:rgba(245,240,232,.42);max-width:340px;}
+
+/* PROJECTS LIST */
+.projects{display:flex;flex-direction:column;}
+.proj{display:grid;grid-template-columns:90px 1fr auto;align-items:center;gap:0;padding:26px 0;border-top:1px solid rgba(245,240,232,.07);text-decoration:none;color:var(--w);position:relative;overflow:hidden;transition:padding .4s cubic-bezier(.16,1,.3,1);cursor:none;}
+.proj::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--r);transition:width .4s cubic-bezier(.16,1,.3,1);}
+.proj:hover{padding:26px 24px;}
+.proj:hover::before{width:3px;}
+.proj:last-child{border-bottom:1px solid rgba(245,240,232,.07);}
+.proj-n{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5.5vw,72px);line-height:1;color:rgba(245,240,232,.1);transition:color .3s;}
+.proj:hover .proj-n{color:rgba(255,36,0,.35);}
+.proj-info{}
+.proj-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(26px,4vw,56px);line-height:.95;letter-spacing:.01em;transition:letter-spacing .4s;}
+.proj:hover .proj-title{letter-spacing:.035em;}
+.proj-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+.proj-tag{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;border:1px solid rgba(245,240,232,.13);color:rgba(245,240,232,.38);}
+.proj-arr{font-size:1.5rem;color:rgba(245,240,232,.13);transition:color .3s,transform .3s;padding-left:36px;}
+.proj:hover .proj-arr{color:var(--r);transform:translate(5px,-5px);}
+
+/* PREVIEW */
+.proj-preview{position:fixed;width:300px;height:188px;pointer-events:none;z-index:300;opacity:0;transform:translate(-50%,-50%) scale(.88) rotate(-2deg);transition:opacity .22s,transform .22s;border:1px solid rgba(245,240,232,.09);overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.proj-preview.show{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-1deg);}
+.prev-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;}
+.pp1{background:linear-gradient(135deg,#0c1e00,#193000,#0a1400);}
+.pp2{background:linear-gradient(135deg,#1e0c00,#301900,#140a00);}
+.pp3{background:linear-gradient(135deg,#000c1e,#001930,#00080e);}
+.prev-glyph{font-family:'Bebas Neue',sans-serif;font-size:5rem;color:rgba(245,240,232,.07);position:relative;z-index:1;}
+.prev-lbl{position:absolute;bottom:14px;left:14px;right:14px;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(245,240,232,.45);font-weight:700;}
+
+/* ABOUT */
+.about{margin:0 44px;border-top:1px solid rgba(245,240,232,.07);padding:110px 0;display:grid;grid-template-columns:1fr 1.2fr;gap:80px;align-items:start;}
+.about-l{position:sticky;top:100px;}
+.about-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,7.5vw,104px);line-height:.87;letter-spacing:.01em;}
+.about-big em{font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);display:block;}
+.about-div{width:30px;height:2px;background:var(--r);margin:26px 0;}
+.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:20px;}
+.sk{padding:9px 11px;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(245,240,232,.4);border:1px solid rgba(245,240,232,.06);transition:color .2s,border-color .2s,background .2s;}
+.sk:hover{color:var(--r);border-color:rgba(255,36,0,.25);background:rgba(255,36,0,.03);}
+.about-r p{font-size:1.08rem;line-height:1.85;color:rgba(245,240,232,.55);margin-bottom:20px;}
+.about-r p strong{color:var(--w);font-weight:700;}
+.about-links{display:flex;gap:14px;margin-top:32px;flex-wrap:wrap;}
+.al{display:inline-flex;align-items:center;gap:7px;font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--w);text-decoration:none;border-bottom:1px solid rgba(245,240,232,.18);padding-bottom:3px;transition:color .2s,border-color .2s;}
+.al:hover{color:var(--r);border-color:var(--r);}
+
+/* SERVICES */
+.services{background:var(--w);color:var(--b);padding:110px 44px;}
+.svc-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:56px;border-bottom:1px solid rgba(0,0,0,.1);padding-bottom:36px;}
+.svc-top h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,8vw,110px);line-height:.88;}
+.svc-top h2 em{font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);}
+.svc-top p{max-width:280px;font-size:.88rem;line-height:1.7;color:rgba(0,0,0,.48);}
+.svc-list{display:flex;flex-direction:column;}
+.svc-row{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:24px;padding:26px 0;border-top:1px solid rgba(0,0,0,.09);transition:background .25s;}
+.svc-row:last-child{border-bottom:1px solid rgba(0,0,0,.09);}
+.svc-row:hover{background:rgba(0,0,0,.025);padding-left:8px;}
+.svc-n{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.8rem;color:rgba(0,0,0,.13);line-height:1;}
+.svc-info h3{font-family:'Bebas Neue',sans-serif;font-size:clamp(20px,2.8vw,38px);letter-spacing:.02em;}
+.svc-info p{font-size:.83rem;line-height:1.6;color:rgba(0,0,0,.48);margin-top:5px;max-width:480px;}
+.svc-badge{font-size:.6rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;padding:4px 11px;border:1px solid rgba(0,0,0,.13);color:rgba(0,0,0,.38);white-space:nowrap;}
+
+/* PROCESS */
+.process{padding:110px 44px;}
+.process-head{margin-bottom:72px;}
+.process-head h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,8vw,110px);line-height:.88;}
+.process-head h2 em{font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid rgba(245,240,232,.07);}
+.step{padding:44px 28px;border-right:1px solid rgba(245,240,232,.07);position:relative;overflow:hidden;transition:background .3s;}
+.step:last-child{border-right:none;}
+.step:hover{background:rgba(245,240,232,.03);}
+.step::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--r);transform:scaleX(0);transform-origin:left;transition:transform .4s ease;}
+.step:hover::after{transform:scaleX(1);}
+.step-n{font-family:'Bebas Neue',sans-serif;font-size:4rem;line-height:.9;color:rgba(245,240,232,.06);margin-bottom:18px;}
+.step h3{font-size:.95rem;font-weight:700;letter-spacing:.04em;margin-bottom:10px;}
+.step p{font-size:.83rem;line-height:1.7;color:rgba(245,240,232,.38);}
+
+/* CONTACT */
+.contact{border-top:1px solid rgba(245,240,232,.07);padding:110px 44px;position:relative;overflow:hidden;}
+.contact-bg{position:absolute;inset:0;font-family:'Bebas Neue',sans-serif;font-size:clamp(110px,20vw,300px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(245,240,232,.025);display:flex;align-items:center;justify-content:center;white-space:nowrap;pointer-events:none;user-select:none;}
+.contact-inner{position:relative;z-index:1;}
+.contact-top{margin-bottom:72px;}
+.contact-top h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,12vw,170px);line-height:.82;letter-spacing:-.01em;}
+.contact-top h2 em{font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);}
+.contact-top p{max-width:460px;font-size:1rem;line-height:1.75;color:rgba(245,240,232,.42);margin-top:24px;}
+.contact-badge{display:inline-flex;align-items:center;gap:8px;font-size:.66rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--r);margin-top:18px;}
+.contact-items{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.ci{display:flex;flex-direction:column;justify-content:space-between;padding:32px 28px;border:1px solid rgba(245,240,232,.07);text-decoration:none;color:var(--w);position:relative;overflow:hidden;transition:border-color .3s;min-height:148px;}
+.ci::after{content:'';position:absolute;bottom:0;left:0;right:0;height:0;background:var(--r);transition:height .35s cubic-bezier(.16,1,.3,1);}
+.ci:hover{border-color:var(--r);}
+.ci:hover::after{height:2px;}
+.ci-lbl{font-size:.6rem;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:rgba(245,240,232,.28);margin-bottom:10px;}
+.ci-val{font-family:'Bebas Neue',sans-serif;font-size:clamp(17px,2vw,26px);letter-spacing:.02em;line-height:1.1;}
+.ci-arr{position:absolute;top:24px;right:24px;font-size:1rem;color:rgba(245,240,232,.18);transition:color .3s,transform .3s;}
+.ci:hover .ci-arr{color:var(--r);transform:translate(4px,-4px);}
+.ci-plain{cursor:default;}
+.ci-plain:hover::after{height:0;}
+.ci-plain:hover{border-color:rgba(245,240,232,.07);}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(245,240,232,.07);padding:22px 44px;display:flex;justify-content:space-between;align-items:center;}
+.f-mark{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.15em;color:var(--w);}
+.f-mark span{color:var(--r);}
+footer p{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.22);}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(44px);transition:opacity .8s ease,transform .8s ease;}
+.rv.on{opacity:1;transform:translateY(0);}
+.rv-l{opacity:0;transform:translateX(-36px);transition:opacity .8s ease,transform .8s ease;}
+.rv-l.on{opacity:1;transform:translateX(0);}
+
+/* ANIMS */
+@keyframes slideUp{to{transform:translateY(0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{to{opacity:1;}}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.15;}}
+@keyframes ticker{0%{transform:translateX(0);}100%{transform:translateX(-50%);}}
+@keyframes scrollAnim{0%,100%{opacity:0;transform:scaleY(0);transform-origin:top;}50%{opacity:1;transform:scaleY(1);}}
+
+/* MOBILE */
+@media(max-width:860px){
+  nav{padding:16px 20px;}
+  .nav-r a:not([class]){display:none;}
+  .hero,.work,.process,.contact{padding-left:20px;padding-right:20px;}
+  .services{padding-left:20px;padding-right:20px;}
+  .about{margin:0 20px;grid-template-columns:1fr;gap:36px;}
+  .about-l{position:static;}
+  .work-head{flex-direction:column;gap:0;}
+  .steps{grid-template-columns:1fr 1fr;}
+  .step{border-bottom:1px solid rgba(245,240,232,.07);}
+  .contact-items{grid-template-columns:1fr;}
+  .svc-top{flex-direction:column;align-items:flex-start;gap:16px;}
+  footer{flex-direction:column;gap:10px;padding:18px 20px;text-align:center;}
+  .hero-scroll{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- preview -->
+<div class="proj-preview" id="preview">
+  <div class="prev-ph pp1" id="prevPh">
+    <div class="prev-glyph" id="prevGlyph">◎</div>
+    <div class="prev-lbl" id="prevLbl">Interaction Design</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-mark">SC.</a>
+  <div class="nav-r">
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <span class="nav-avail"><span class="dot"></span>Open to Work</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-ghost">DESIGN</div>
+
+  <!-- Background video -->
+  <video autoplay muted loop playsinline id="hero-vid">
+    <source src="red_trans.mp4" type="video/mp4">
+  </video>
+
+  <div class="hero-scroll">
+    <div class="scroll-bar"></div>
+    <span class="scroll-txt">Scroll</span>
+  </div>
+  <p class="hero-idx">— UI/UX & Graphic Designer &nbsp;/&nbsp; Newcastle, UK &nbsp;/&nbsp; 2026</p>
+  <h1 class="hero-title">
+    <span class="line"><span>SREP-</span></span>
+    <span class="line"><span>ATHY <em>C.</em></span></span>
+  </h1>
+  <div class="hero-foot">
+    <div>
+      <p class="hero-desc">Crafting interfaces and visual systems at the edge of function and form — where every pixel is intentional.</p>
+      <a href="#work" class="hero-cta">View Work &nbsp;↗</a>
+    </div>
+    <div class="hero-meta">
+      <div>UI/UX Design</div>
+      <div>Graphic Design</div>
+      <div>Interaction Design</div>
+      <div>Full Time · Part Time · Internship</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ti">UI/UX Design <b>✦</b></span><span class="ti">Graphic Design <b>✦</b></span><span class="ti">Wearable Tech <b>✦</b></span><span class="ti">Sustainable Design <b>✦</b></span><span class="ti">Interaction Design <b>✦</b></span><span class="ti">Brand Identity <b>✦</b></span><span class="ti">User Research <b>✦</b></span><span class="ti">Visual Systems <b>✦</b></span>
+    <span class="ti">UI/UX Design <b>✦</b></span><span class="ti">Graphic Design <b>✦</b></span><span class="ti">Wearable Tech <b>✦</b></span><span class="ti">Sustainable Design <b>✦</b></span><span class="ti">Interaction Design <b>✦</b></span><span class="ti">Brand Identity <b>✦</b></span><span class="ti">User Research <b>✦</b></span><span class="ti">Visual Systems <b>✦</b></span>
+  </div>
+</div>
+
+<!-- WORK -->
+<section class="work" id="work">
+  <div class="work-head rv">
+    <div class="sec-ghost">P</div>
+    <div class="work-head-r">
+      <h2>MY<br><em>Projects</em></h2>
+      <p>All projects — click to view on Behance.</p>
+    </div>
+  </div>
+  <div class="projects">
+    <a class="proj rv" href="https://www.behance.net/gallery/244098701/A-Multisensory-Wearable-device-Interaction-Design" target="_blank" data-glyph="◎" data-lbl="Interaction Design · Wearable Tech" data-ph="pp1">
+      <div class="proj-n">01</div>
+      <div class="proj-info">
+        <div class="proj-title">A MULTISENSORY<br>WEARABLE DEVICE</div>
+        <div class="proj-tags"><span class="proj-tag">Interaction Design</span><span class="proj-tag">Wearable Tech</span><span class="proj-tag">UX</span></div>
+      </div>
+      <div class="proj-arr">↗</div>
+    </a>
+    <a class="proj rv" href="https://www.behance.net/gallery/220829637/Safety-Strips-UX-Case-Study-Sustainable-Development" target="_blank" data-glyph="◈" data-lbl="UX Case Study · Sustainable Dev" data-ph="pp2">
+      <div class="proj-n">02</div>
+      <div class="proj-info">
+        <div class="proj-title">SAFETY STRIPS</div>
+        <div class="proj-tags"><span class="proj-tag">UX Case Study</span><span class="proj-tag">Sustainable Dev</span></div>
+      </div>
+      <div class="proj-arr">↗</div>
+    </a>
+    <a class="proj rv" href="https://www.behance.net/gallery/221831971/drsd-Your-Digital-Wardrobe-UIUX-Design" target="_blank" data-glyph="◉" data-lbl="UI/UX Design · Fashion Tech" data-ph="pp3">
+      <div class="proj-n">03</div>
+      <div class="proj-info">
+        <div class="proj-title">DRSD — YOUR DIGITAL<br>WARDROBE</div>
+        <div class="proj-tags"><span class="proj-tag">UI/UX Design</span><span class="proj-tag">Fashion Tech</span><span class="proj-tag">Product Design</span></div>
+      </div>
+      <div class="proj-arr">↗</div>
+    </a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-l rv-l">
+    <div class="about-big">ABOUT<br><em>me.</em></div>
+    <div class="about-div"></div>
+    <div class="skill-grid">
+      <div class="sk">Figma</div><div class="sk">Adobe XD</div>
+      <div class="sk">Illustrator</div><div class="sk">Photoshop</div>
+      <div class="sk">InDesign</div><div class="sk">Prototyping</div>
+      <div class="sk">User Research</div><div class="sk">Typography</div>
+    </div>
+  </div>
+  <div class="about-r rv">
+    <p><strong>I'm Srepathy C</strong> — a UI/UX and Graphic Designer based in Newcastle upon Tyne. A design graduate bringing academic rigour and hands-on creative experience to every project.</p>
+    <p>I specialise in <strong>visual storytelling and user-centred design</strong> — from multisensory wearable interaction systems to sustainability-driven UX case studies. My work sits where research meets craft.</p>
+    <p>Currently looking for <strong>full-time, part-time, and internship</strong> opportunities. If you're building something that demands exceptional design thinking, let's talk.</p>
+    <div class="about-links">
+      <a href="https://www.linkedin.com/in/srepathy-c-a5902b2b5" target="_blank" class="al">LinkedIn ↗</a>
+      <a href="https://www.behance.net/srepathyc2" target="_blank" class="al">Behance ↗</a>
+      <a href="#contact" class="al">Hire Me ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="svc-top rv">
+    <h2>WHAT<br>I <em>do</em></h2>
+    <p>From concept to delivery — a full design practice built around clarity, craft, and user impact.</p>
+  </div>
+  <div class="svc-list rv">
+    <div class="svc-row"><div class="svc-n">01</div><div class="svc-info"><h3>UI / UX DESIGN</h3><p>Intuitive, visually precise interfaces built on research and accessibility. From wireframe to polished prototype.</p></div><div class="svc-badge">Core</div></div>
+    <div class="svc-row"><div class="svc-n">02</div><div class="svc-info"><h3>GRAPHIC DESIGN</h3><p>Visual identities, brand systems, and print/digital assets with a distinctive, context-specific voice.</p></div><div class="svc-badge">Core</div></div>
+    <div class="svc-row"><div class="svc-n">03</div><div class="svc-info"><h3>INTERACTION DESIGN</h3><p>Interfaces brought to life through thoughtful interaction patterns, prototyping, and motion principles.</p></div><div class="svc-badge">Specialist</div></div>
+    <div class="svc-row"><div class="svc-n">04</div><div class="svc-info"><h3>UX RESEARCH</h3><p>User interviews, usability testing, and insight synthesis that grounds design in real human behaviour.</p></div><div class="svc-badge">Specialist</div></div>
+    <div class="svc-row"><div class="svc-n">05</div><div class="svc-info"><h3>BRAND IDENTITY</h3><p>Cohesive brand systems — logo, colour, type, and guidelines — that hold across every touchpoint.</p></div><div class="svc-badge">Add-on</div></div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process">
+  <div class="process-head rv">
+    <p style="font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--r);font-weight:700;margin-bottom:14px;">// Process</p>
+    <h2>HOW I<br><em>work</em></h2>
+  </div>
+  <div class="steps rv">
+    <div class="step"><div class="step-n">01</div><h3>Discover</h3><p>Deep research into user needs, business context, and market landscape. No assumptions — only evidence.</p></div>
+    <div class="step"><div class="step-n">02</div><h3>Define</h3><p>Distil insights into clear problem statements, personas, and design principles that anchor every decision.</p></div>
+    <div class="step"><div class="step-n">03</div><h3>Design</h3><p>Rapid iteration from rough concepts to high-fidelity, testable prototypes. Fail fast, refine faster.</p></div>
+    <div class="step"><div class="step-n">04</div><h3>Deliver</h3><p>Polished design systems with thorough documentation — built to hand off, built to scale.</p></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-bg">HELLO</div>
+  <div class="contact-inner">
+    <div class="contact-top rv">
+      <h2>LET'S<br><em>make</em><br>SOMETHING.</h2>
+      <p>Open to Work now for freelance projects and full-time roles. Have a brief — or just an idea? Either works.</p>
+      <div class="contact-badge"><span class="dot"></span>Full Time · Part Time · Internship</div>
+    </div>
+    <div class="contact-items rv">
+      <a class="ci" href="https://www.linkedin.com/in/srepathy-c-a5902b2b5" target="_blank">
+        <div><div class="ci-lbl">LinkedIn</div><div class="ci-val">Srepathy C</div></div>
+        <span class="ci-arr">↗</span>
+      </a>
+      <a class="ci" href="https://www.behance.net/srepathyc2" target="_blank">
+        <div><div class="ci-lbl">Behance</div><div class="ci-val">behance.net/srepathyc2</div></div>
+        <span class="ci-arr">↗</span>
+      </a>
+      <div class="ci ci-plain">
+        <div><div class="ci-lbl">Based in</div><div class="ci-val">Newcastle upon Tyne, UK</div></div>
+        <div style="font-size:.6rem;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--r);margin-top:8px;">Remote · Relocation · On-site</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIL -->
+<section style="border-top:1px solid rgba(245,240,232,.07);padding:110px 44px;position:relative;overflow:hidden;text-align:center;">
+  <div style="position:absolute;inset:0;font-family:'Bebas Neue',sans-serif;font-size:clamp(100px,18vw,260px);line-height:.8;color:transparent;-webkit-text-stroke:1px rgba(245,240,232,.025);display:flex;align-items:center;justify-content:center;pointer-events:none;user-select:none;white-space:nowrap;">MAIL</div>
+  <div class="rv" style="position:relative;z-index:1;">
+    <p style="font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--r);font-weight:700;margin-bottom:20px;">// Get In Touch</p>
+    <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,140px);line-height:.82;letter-spacing:-.01em;margin-bottom:16px;">DROP ME<br><span style="font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);">a mail.</span></h2>
+    <p style="font-size:1rem;line-height:1.8;color:rgba(245,240,232,.38);max-width:460px;margin:0 auto 40px;">Looking for full-time, part-time, and internship opportunities. If you think I'm a good fit — drop me a mail.</p>
+    <a href="https://mail.google.com/mail/?view=cm&to=srepathy22@gmail.com" target="_blank"
+       id="mailLink"
+       style="display:inline-flex;align-items:center;gap:12px;
+              font-family:'Bebas Neue',sans-serif;
+              font-size:clamp(22px,3.5vw,48px);
+              letter-spacing:.04em;
+              color:var(--w);
+              text-decoration:none;
+              border-bottom:2px solid rgba(245,240,232,.12);
+              padding-bottom:8px;
+              transition:color .2s,border-color .2s;">
+      srepathy22@gmail.com
+      <span style="font-size:1.2rem;">↗</span>
+    </a>
+    <div style="margin-top:48px;display:flex;justify-content:center;gap:0;">
+      <a href="https://www.linkedin.com/in/srepathy-c-a5902b2b5" target="_blank"
+         class="social-btn"
+         style="font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+                padding:12px 24px;border:1px solid rgba(245,240,232,.1);
+                color:rgba(245,240,232,.38);text-decoration:none;
+                transition:color .2s,border-color .2s;">LinkedIn ↗</a>
+      <a href="https://www.behance.net/srepathyc2" target="_blank"
+         class="social-btn"
+         style="font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+                padding:12px 24px;border:1px solid rgba(245,240,232,.1);border-left:none;
+                color:rgba(245,240,232,.38);text-decoration:none;
+                transition:color .2s,border-color .2s;">Behance ↗</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="f-mark">SREPATHY C<span>.</span></span>
+  <p>UI/UX & Graphic Designer · Newcastle · 2026</p>
+  <p>Designed with intent.</p>
+</footer>
+
+<script>
+// Mail hover
+const ml = document.getElementById('mailLink');
+if(ml){
+  ml.addEventListener('mouseenter',()=>{ml.style.color='var(--r)';ml.style.borderColor='var(--r)';});
+  ml.addEventListener('mouseleave',()=>{ml.style.color='var(--w)';ml.style.borderColor='rgba(245,240,232,.12)';});
+}
+document.querySelectorAll('.social-btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{el.style.color='var(--w)';el.style.borderColor='rgba(245,240,232,.3)';});
+  el.addEventListener('mouseleave',()=>{el.style.color='rgba(245,240,232,.38)';el.style.borderColor='rgba(245,240,232,.1)';});
+});
+// Cursor
+const cur=document.getElementById('cur'),cur2=document.getElementById('cur2');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function loop(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;cur2.style.left=rx+'px';cur2.style.top=ry+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a,button').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';cur2.style.width='58px';cur2.style.height='58px';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';cur2.style.width='44px';cur2.style.height='44px';});
+});
+
+// Reveal
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');obs.unobserve(e.target);}});},{threshold:.1});
+document.querySelectorAll('.rv,.rv-l').forEach(el=>obs.observe(el));
+
+// Project preview
+const preview=document.getElementById('preview');
+const prevPh=document.getElementById('prevPh');
+const prevGlyph=document.getElementById('prevGlyph');
+const prevLbl=document.getElementById('prevLbl');
+document.querySelectorAll('.proj').forEach(p=>{
+  p.addEventListener('mouseenter',()=>{
+    prevGlyph.textContent=p.dataset.glyph||'◎';
+    prevLbl.textContent=p.dataset.lbl||'';
+    prevPh.className='prev-ph '+(p.dataset.ph||'pp1');
+    preview.classList.add('show');
+  });
+  p.addEventListener('mouseleave',()=>preview.classList.remove('show'));
+  p.addEventListener('mousemove',e=>{preview.style.left=e.clientX+'px';preview.style.top=(e.clientY-80)+'px';});
+});
+</script>
+</body>
+</html>
