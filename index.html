@@ -393,11 +393,12 @@ footer p{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:up
   <div class="rv" style="position:relative;z-index:1;">
     <p style="font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:var(--r);font-weight:700;margin-bottom:20px;">// Get In Touch</p>
     <h2 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,140px);line-height:.82;letter-spacing:-.01em;margin-bottom:16px;">DROP ME<br><span style="font-family:'DM Serif Display',serif;font-style:italic;color:var(--r);">a mail.</span></h2>
-    <p style="font-size:1rem;line-height:1.8;color:rgba(245,240,232,.38);max-width:420px;margin:0 auto 40px;">Looking for full-time, part-time, and internship opportunities. If you think I'm a good fit — drop me a mail.</p>
-    <a href="mailto:srepathy22@gmail.com"
+    <p style="font-size:1rem;line-height:1.8;color:rgba(245,240,232,.38);max-width:460px;margin:0 auto 40px;">Looking for full-time, part-time, and internship opportunities. If you think I'm a good fit — drop me a mail.</p>
+    <a href="https://mail.google.com/mail/?view=cm&to=srepathy22@gmail.com" target="_blank"
+       id="mailLink"
        style="display:inline-flex;align-items:center;gap:12px;
               font-family:'Bebas Neue',sans-serif;
-              font-size:clamp(28px,4vw,52px);
+              font-size:clamp(22px,3.5vw,48px);
               letter-spacing:.04em;
               color:var(--w);
               text-decoration:none;
@@ -405,19 +406,21 @@ footer p{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:up
               padding-bottom:8px;
               transition:color .2s,border-color .2s;">
       srepathy22@gmail.com
-      <span style="font-size:1.4rem;transition:transform .3s;">↗</span>
+      <span style="font-size:1.2rem;">↗</span>
     </a>
     <div style="margin-top:48px;display:flex;justify-content:center;gap:0;">
       <a href="https://www.linkedin.com/in/srepathy-c-a5902b2b5" target="_blank"
+         class="social-btn"
          style="font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
                 padding:12px 24px;border:1px solid rgba(245,240,232,.1);
                 color:rgba(245,240,232,.38);text-decoration:none;
-                transition:color .2s,border-color .2s,background .2s;">LinkedIn ↗</a>
+                transition:color .2s,border-color .2s;">LinkedIn ↗</a>
       <a href="https://www.behance.net/srepathyc2" target="_blank"
+         class="social-btn"
          style="font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
                 padding:12px 24px;border:1px solid rgba(245,240,232,.1);border-left:none;
                 color:rgba(245,240,232,.38);text-decoration:none;
-                transition:color .2s,border-color .2s,background .2s;">Behance ↗</a>
+                transition:color .2s,border-color .2s;">Behance ↗</a>
     </div>
   </div>
 </section>
@@ -430,13 +433,13 @@ footer p{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:up
 </footer>
 
 <script>
-// Mail link hover
-document.querySelectorAll('a[href^="mailto"]').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{el.style.color='var(--r)';el.style.borderColor='var(--r)';});
-  el.addEventListener('mouseleave',()=>{el.style.color='var(--w)';el.style.borderColor='rgba(245,240,232,.12)';});
-});
-// Social btn hover
-document.querySelectorAll('a[href*="linkedin"],a[href*="behance"]').forEach(el=>{
+// Mail hover
+const ml = document.getElementById('mailLink');
+if(ml){
+  ml.addEventListener('mouseenter',()=>{ml.style.color='var(--r)';ml.style.borderColor='var(--r)';});
+  ml.addEventListener('mouseleave',()=>{ml.style.color='var(--w)';ml.style.borderColor='rgba(245,240,232,.12)';});
+}
+document.querySelectorAll('.social-btn').forEach(el=>{
   el.addEventListener('mouseenter',()=>{el.style.color='var(--w)';el.style.borderColor='rgba(245,240,232,.3)';});
   el.addEventListener('mouseleave',()=>{el.style.color='rgba(245,240,232,.38)';el.style.borderColor='rgba(245,240,232,.1)';});
 });
